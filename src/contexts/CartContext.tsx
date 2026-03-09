@@ -45,7 +45,6 @@ const cartReducer = (state: CartItem[], action: CartAction): CartItem[] => {
 interface CartContextType {
   cartItems: CartItem[];
   totalItems: number;
-  totalPrice: number;
   addToCart: (product: Product) => void;
   removeFromCart: (id: number) => void;
   increment: (id: number) => void;
@@ -59,7 +58,6 @@ export const CartContextProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, dispatch] = useReducer(cartReducer, []);
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const addToCart = (product: Product) => dispatch({ type: 'ADD_ITEM', payload: product });
   const removeFromCart = (id: number) => dispatch({ type: 'REMOVE_ITEM', payload: id });
@@ -69,7 +67,7 @@ export const CartContextProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <CartContext.Provider
-      value={{ cartItems, totalItems, totalPrice, addToCart, removeFromCart, increment, decrement, clearCart }}
+      value={{ cartItems, totalItems, addToCart, removeFromCart, increment, decrement, clearCart }}
     >
       {children}
     </CartContext.Provider>

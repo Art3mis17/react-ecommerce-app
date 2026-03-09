@@ -2,33 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import useProduct from '../../hooks/useProduct';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import StarRating from '../../components/shared/StarRating';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { deleteProduct, clearProductOverride } from '../../services/productService';
-
-//  Helpers 
-const ratingColor = (r: number) => r >= 3.5 ? '#22C55E' : r >= 2.5 ? '#F59E0B' : '#EF4444';
-
-const StarRating = ({ rating, count }: { rating: number; count?: number }) => {
-  const color = ratingColor(rating);
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <span style={{ display: 'inline-flex', gap: 3 }}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <svg key={i} width="17" height="17" viewBox="0 0 24 24"
-            fill={i < Math.floor(rating) ? color : 'none'}
-            stroke={color} strokeWidth={1.5}>
-            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
-          </svg>
-        ))}
-      </span>
-      <span style={{ fontSize: 14, fontWeight: 700, color }}>{rating.toFixed(1)}</span>
-      {count !== undefined && (
-        <span style={{ fontSize: 13, color: 'var(--text-3)' }}>({count.toLocaleString()} reviews)</span>
-      )}
-    </div>
-  );
-};
 
 const TRUST = [
   { icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', label: 'Secure checkout' },
@@ -382,14 +359,8 @@ const ProductDetailPage = () => {
                           </p>
                         </div>
                         {/* Star rating for this review */}
-                        <div style={{ marginLeft: 'auto', display: 'inline-flex', gap: 2 }}>
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <svg key={i} width="12" height="12" viewBox="0 0 24 24"
-                              fill={i < review.rating ? ratingColor(review.rating) : 'none'}
-                              stroke={ratingColor(review.rating)} strokeWidth={2}>
-                              <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
-                            </svg>
-                          ))}
+                        <div style={{ marginLeft: 'auto' }}>
+                          <StarRating size="sm" rating={review.rating} />
                         </div>
                       </div>
                       <p style={{ fontSize: 14, color: 'var(--text-2)', margin: 0, lineHeight: 1.6 }}>

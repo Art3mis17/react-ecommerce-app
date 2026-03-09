@@ -1,5 +1,5 @@
 // Product model matching DummyJSON API — https://dummyjson.com/docs/products
-export interface ProductReview {
+interface ProductReview {
   rating: number;
   comment: string;
   date: string;
@@ -36,7 +36,7 @@ export interface CartItem extends Product {
 }
 
 /** Allowed role values — drives access control throughout the app. */
-export type UserRole = 'admin' | 'customer';
+type UserRole = 'admin' | 'customer';
 
 // Auth models
 export interface User {

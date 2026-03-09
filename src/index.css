@@ -429,25 +429,6 @@ button { font-family: inherit; }
 }
 .btn-icon:hover { background: var(--surface-2); color: var(--text); border-color: var(--border-mid); }
 
-/* Stepper */
-.step-btn {
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-2);
-  transition: all var(--t-fast) var(--ease);
-  line-height: 1;
-}
-.step-btn:hover { background: var(--accent-dim); border-color: var(--accent-mid); color: var(--accent); }
-
 /* 
    INPUTS
     */
@@ -471,27 +452,6 @@ button { font-family: inherit; }
 }
 .ent-input.error  { border-color: var(--error); box-shadow: 0 0 0 4px var(--error-dim); }
 .ent-input.resize { resize: vertical; min-height: 96px; }
-
-/* Custom select — removes browser chrome, adds themed chevron */
-select.ent-input {
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234F46E5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 40px;
-  cursor: pointer;
-}
-select.ent-input:focus {
-  border-color: var(--accent);
-  box-shadow: var(--shadow-glow);
-}
-select.ent-input option {
-  background: var(--surface);
-  color: var(--text);
-  font-size: 14px;
-  padding: 8px;
-}
 
 /* JS-driven custom select — themed, animated, no native chrome */
 .ent-custom-select {
@@ -686,8 +646,6 @@ select.ent-input option {
 }
 .badge-indigo  { background: var(--accent-dim);   color: var(--accent); border: 1px solid var(--accent-mid); }
 .badge-green   { background: var(--success-dim);  color: var(--success); }
-.badge-amber   { background: var(--warning-dim);  color: var(--warning); }
-.badge-red     { background: var(--error-dim);    color: var(--error); }
 .badge-neutral { background: var(--surface-2);    color: var(--text-2); border: 1px solid var(--border); }
 
 /* 
@@ -700,25 +658,6 @@ select.ent-input option {
   line-height: 1.12;
   color: var(--text);
 }
-.ent-title-lg {
-  font-size: 48px;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1.08;
-}
-.ent-subtitle {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.2;
-  color: var(--text);
-}
-.ent-heading {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--text);
-}
 .gradient-text {
   background: linear-gradient(135deg, var(--accent) 0%, #7C3AED 60%);
   -webkit-background-clip: text;
@@ -729,31 +668,6 @@ select.ent-input option {
 /*  Line clamp  */
 .clamp-1 { display: -webkit-box; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 .clamp-2 { display: -webkit-box; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.clamp-3 { display: -webkit-box; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-
-/*  Divider  */
-.divider {
-  height: 1px;
-  border: none;
-  background: var(--border);
-  margin: 0;
-}
-
-/*  Glass panel  */
-.glass-panel {
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border: 1px solid rgba(255,255,255,0.60);
-}
-
-/* 
-   UTILITIES
-    */
-.sr-only {
-  position: absolute; clip: rect(0 0 0 0);
-  width: 1px; height: 1px; margin: -1px; overflow: hidden;
-}
 
 /* 
    ANIMATIONS
@@ -762,18 +676,9 @@ select.ent-input option {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
 @keyframes slide-down {
   from { opacity: 0; transform: translateY(-10px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0 rgba(79,70,229,0.40); }
-  70%  { box-shadow: 0 0 0 10px rgba(79,70,229,0); }
-  100% { box-shadow: 0 0 0 0 rgba(79,70,229,0); }
 }
 @keyframes fade-up-in {
   from { opacity: 0; transform: translateY(-6px); }
@@ -781,7 +686,6 @@ select.ent-input option {
 }
 
 .anim-fade-up   { animation: fade-up   0.30s var(--ease-out) both; }
-.anim-fade-in   { animation: fade-in   0.25s var(--ease-out) both; }
 .anim-slide-down{ animation: slide-down 0.22s var(--ease-out) both; }
 
 /* Category dropdown panel — responsive grid */
@@ -949,8 +853,6 @@ select.ent-input option {
 
   /* Typography */
   .ent-title         { font-size: 24px; }
-  .ent-title-lg      { font-size: 30px; }
-  .ent-subtitle      { font-size: 14px; }
   .gradient-text     { font-size: inherit; }
 
   /* Page spacing */
@@ -960,16 +862,6 @@ select.ent-input option {
 
   /* Products grid: 2 cols on mobile */
   .product-card-img  { height: 160px; }
-
-  /* Category tabs: horizontal scroll */
-  .cat-tabs {
-    overflow-x: auto;
-    flex-wrap: nowrap !important;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 4px;
-  }
-  .cat-tabs::-webkit-scrollbar { display: none; }
 
   /* Category dropdown: full-width single column on mobile */
   .cat-dropdown-panel {
@@ -983,9 +875,6 @@ select.ent-input option {
   /* Cart: stack columns */
   .cart-layout {
     grid-template-columns: 1fr !important;
-  }
-  .cart-layout .cart-summary-sticky {
-    position: static !important;
   }
 
   /* Cart item row: compress thumbnail */
@@ -1017,17 +906,6 @@ select.ent-input option {
     font-size: 14px;
   }
 
-  /* Login: full width right panel */
-  .login-right-panel {
-    padding: 32px 20px !important;
-  }
-
-  /* Footer: stack */
-  .footer-inner {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 12px !important;
-  }
 }
 
 /* Between tablet-only (769–1024) */
@@ -1043,92 +921,4 @@ select.ent-input option {
   .hide-desktop { display: none !important; }
 }
 
-/* ============================================================
-   LOGIN PAGE — animated scrolling background + card components
-   ============================================================ */
 
-/* Scroll keyframes */
-@keyframes scroll-right {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-@keyframes scroll-left {
-  from { transform: translateX(-50%); }
-  to   { transform: translateX(0); }
-}
-.animate-scroll-right      { animation: scroll-right 30s linear infinite; }
-.animate-scroll-left       { animation: scroll-left  30s linear infinite; }
-.animate-scroll-right-slow { animation: scroll-right 45s linear infinite; }
-
-/* Background scroll container */
-.login-bg-scroll {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  opacity: 0.45;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-}
-
-/* Each row of animated cards */
-.login-row {
-  display: flex;
-  gap: 20px;
-  padding: 12px 0;
-  width: max-content;
-  will-change: transform;
-}
-
-/* Individual decorative card */
-.login-bg-card {
-  flex-shrink: 0;
-  width: 140px;
-  height: 190px;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-}
-.login-bg-card-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.9);
-  text-align: center;
-}
-.login-bg-card-price {
-  font-size: 18px;
-  font-weight: 800;
-  color: #fff;
-}
-
-/* Dark overlay on top of card rows */
-.login-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(15,23,42,0.65) 0%, rgba(120,53,15,0.50) 50%, rgba(15,23,42,0.65) 100%);
-  pointer-events: none;
-}
-
-/* Centered card container */
-.login-card-wrap {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  max-width: 420px;
-}
-
-/* Frosted glass login card */
-.login-card {
-  background: rgba(255,255,255,0.97);
-  backdrop-filter: blur(20px);
-  border-radius: var(--r-xl);
-  padding: 28px 28px 24px;
-  border: 1px solid rgba(255,255,255,0.25);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.40), 0 0 0 1px rgba(249,115,22,0.08);
-}

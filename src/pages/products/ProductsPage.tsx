@@ -2,28 +2,11 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useProducts from '../../hooks/useProducts';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import StarRating from '../../components/shared/StarRating';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Product } from '../../models/types';
-
-const ratingColor = (r: number) => r >= 3.5 ? '#22C55E' : r >= 2.5 ? '#F59E0B' : '#EF4444';
-
-/** Convert a DummyJSON category slug to a display label: "mens-shirts" → "Mens Shirts" */
-const slugToLabel = (slug: string) =>
-  slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-
-const StarRow = ({ rating }: { rating: number }) => (
-  <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
-    {Array.from({ length: 5 }).map((_, i) => (
-      <svg key={i} width="12" height="12" viewBox="0 0 24 24"
-        fill={i < Math.round(rating) ? ratingColor(rating) : 'none'}
-        stroke={ratingColor(rating)} strokeWidth={2}>
-        <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
-      </svg>
-    ))}
-    <span style={{ fontSize: 11, color: ratingColor(rating), fontWeight: 600, marginLeft: 4 }}>{rating?.toFixed(1)}</span>
-  </span>
-);
+import { slugToLabel } from '../../utils/formatters';
 
 const ProductsPage = () => {
   useEffect(() => { document.title = 'Products | CartCrazy'; }, []);
@@ -308,7 +291,7 @@ const ProductsPage = () => {
 
                   {product.rating && (
                     <div style={{ marginBottom: 12 }}>
-                      <StarRow rating={product.rating} />
+                      <StarRating size="sm" rating={product.rating} />
                     </div>
                   )}
 
