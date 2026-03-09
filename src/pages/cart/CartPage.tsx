@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 
@@ -10,6 +10,23 @@ const CartPage = () => {
 
   // Controls whether the checkout success notification is visible
   const [checkedOut, setCheckedOut] = useState(false);
+
+  // Confirmation states for destructive actions
+  const [confirmRemoveId, setConfirmRemoveId] = useState<number | null>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
+
+  // ESC dismisses any open confirmation dialog
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setConfirmRemoveId(null);
+      setConfirmClear(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   /**
    * Simulates placing an order:
@@ -94,7 +111,7 @@ const CartPage = () => {
               <span className="badge badge-indigo">{itemCount} {itemCount === 1 ? 'item' : 'items'}</span>
             </h1>
           </div>
-          <button className="btn-ghost" onClick={clearCart}
+          <button className="btn-ghost" onClick={() => setConfirmClear(true)}
             style={{ fontSize: 13, color: 'var(--error)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -102,6 +119,30 @@ const CartPage = () => {
             Clear all
           </button>
         </div>
+
+        {/* Clear all confirmation */}
+        {confirmClear && (
+          <div className="anim-fade-up" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap',
+            gap: 12, padding: '12px 18px', marginBottom: 20, borderRadius: 'var(--r-lg)',
+            background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)',
+          }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--error)' }}>
+              Remove all {itemCount} {itemCount === 1 ? 'item' : 'items'} from your cart?
+            </span>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn-danger" style={{ padding: '6px 16px', fontSize: 12 }}
+                onClick={() => { clearCart(); setConfirmClear(false); }}>
+                Yes, clear cart
+              </button>
+              <button className="btn-sec" style={{ padding: '6px 16px', fontSize: 12 }}
+                onClick={() => setConfirmClear(false)}>
+                Cancel
+              </button>
+            </div>
+            <span style={{ fontSize: 11, color: 'var(--text-3)', width: '100%' }}>Press Esc to cancel</span>
+          </div>
+        )}
 
         <div className="cart-layout">
 
@@ -177,8 +218,26 @@ const CartPage = () => {
                     >+</button>
                   </div>
                   {/* Remove */}
+                  {confirmRemoveId === item.id ? (
+                    <div className="anim-fade-up" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <button
+                        onClick={() => { removeFromCart(item.id); setConfirmRemoveId(null); }}
+                        className="btn-danger"
+                        style={{ padding: '4px 10px', fontSize: 11, lineHeight: 1 }}
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        onClick={() => setConfirmRemoveId(null)}
+                        className="btn-sec"
+                        style={{ padding: '4px 10px', fontSize: 11, lineHeight: 1 }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
                   <button
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => setConfirmRemoveId(item.id)}
                     style={{
                       background: 'none', border: 'none', cursor: 'pointer', padding: 0,
                       fontSize: 12, color: 'var(--text-3)', display: 'flex', alignItems: 'center', gap: 4,
@@ -192,6 +251,7 @@ const CartPage = () => {
                     </svg>
                     Remove
                   </button>
+                  )}
                 </div>
               </div>
             ))}

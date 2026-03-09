@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useProducts from '../../hooks/useProducts';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
@@ -7,6 +7,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import type { Product } from '../../models/types';
 
 const ratingColor = (r: number) => r >= 3.5 ? '#22C55E' : r >= 2.5 ? '#F59E0B' : '#EF4444';
+
+/** Convert a DummyJSON category slug to a display label: "mens-shirts" → "Mens Shirts" */
+const slugToLabel = (slug: string) =>
+  slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
 const StarRow = ({ rating }: { rating: number }) => (
   <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
@@ -33,6 +37,33 @@ const ProductsPage = () => {
   const { addToCart, cartItems, increment, decrement } = useCart();
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
+
+  // Category panel open state + outside-click + ESC dismiss
+  const [catOpen, setCatOpen] = useState(false);
+  const catRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!catOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (catRef.current && !catRef.current.contains(e.target as Node)) setCatOpen(false);
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setCatOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [catOpen]);
+
+  /** Pick a category from the panel */
+  const pickCategory = useCallback((cat: string) => {
+    setSelectedCategory(cat);
+    setSearchQuery('');
+    setCatOpen(false);
+  }, [setSelectedCategory, setSearchQuery]);
 
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
@@ -79,41 +110,103 @@ const ProductsPage = () => {
           </div>
         </div>
 
-        {/*  Category tabs  */}
-        <div className="anim-fade-up" style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap', animationDelay: '0.05s' }}>
-          <button
-            onClick={() => { setSelectedCategory(''); setSearchQuery(''); }}
-            style={{
-              padding: '8px 16px', borderRadius: 'var(--r-pill)',
-              fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              background: !selectedCategory && !searchQuery ? 'var(--accent)' : 'var(--surface)',
-              color: !selectedCategory && !searchQuery ? 'white' : 'var(--text-2)',
-              boxShadow: !selectedCategory && !searchQuery ? '0 2px 8px rgba(79,70,229,0.30)' : 'var(--shadow-xs)',
-              border: '1px solid transparent',
-              borderColor: !selectedCategory && !searchQuery ? 'transparent' : 'var(--border)',
-              transition: 'all 0.15s ease',
-            }}
-          >
-            All
-          </button>
-          {categories.map((cat) => (
+        {/*  Category filter  */}
+        <div ref={catRef} className="anim-fade-up" style={{ marginBottom: 16, position: 'relative', zIndex: 50, animationDelay: '0.05s' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* Filter toggle button */}
             <button
-              key={cat}
-              onClick={() => { setSelectedCategory(cat); setSearchQuery(''); }}
+              onClick={() => setCatOpen(prev => !prev)}
               style={{
-                padding: '8px 16px', borderRadius: 'var(--r-pill)',
-                fontSize: 13, fontWeight: 500, cursor: 'pointer',
-                background: selectedCategory === cat && !searchQuery ? 'var(--accent)' : 'var(--surface)',
-                color: selectedCategory === cat && !searchQuery ? 'white' : 'var(--text-2)',
-                boxShadow: selectedCategory === cat && !searchQuery ? '0 2px 8px rgba(79,70,229,0.30)' : 'var(--shadow-xs)',
-                border: `1px solid ${selectedCategory === cat && !searchQuery ? 'transparent' : 'var(--border)'}`,
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                padding: '9px 16px', borderRadius: 'var(--r-lg)',
+                fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                background: catOpen ? 'var(--accent)' : 'var(--surface)',
+                color: catOpen ? 'white' : 'var(--text)',
+                border: `1px solid ${catOpen ? 'transparent' : 'var(--border)'}`,
+                boxShadow: catOpen ? '0 2px 8px rgba(79,70,229,0.30)' : 'var(--shadow-xs)',
                 transition: 'all 0.15s ease',
-                textTransform: 'capitalize',
               }}
             >
-              {cat}
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              Categories
+              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                style={{ transition: 'transform 0.2s', transform: catOpen ? 'rotate(180deg)' : 'rotate(0)' }}>
+                <polyline points="6 9 12 15 18 9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </button>
-          ))}
+
+            {/* Active category chip */}
+            {selectedCategory && !searchQuery && (
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '6px 12px', borderRadius: 'var(--r-pill)',
+                fontSize: 12, fontWeight: 600,
+                background: 'rgba(79,70,229,0.10)', color: 'var(--accent)',
+                border: '1px solid rgba(79,70,229,0.18)',
+              }}>
+                {slugToLabel(selectedCategory)}
+                <button
+                  onClick={() => { setSelectedCategory(''); setSearchQuery(''); }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: 'var(--accent)' }}
+                  aria-label="Clear category"
+                >
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+            )}
+          </div>
+
+          {/* Dropdown panel — multi-column grid, responsive */}
+          {catOpen && (
+            <div className="cat-dropdown-panel" style={{
+              position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 8, zIndex: 50,
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              borderRadius: 'var(--r-lg)', boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
+              padding: 8,
+              display: 'grid', gap: 4,
+              maxHeight: '60vh', overflowY: 'auto',
+              animation: 'fade-up-in 0.18s ease both',
+            }}>
+              <button
+                onClick={() => pickCategory('')}
+                style={{
+                  padding: '9px 14px', borderRadius: 'var(--r-md)',
+                  fontSize: 13, fontWeight: !selectedCategory ? 700 : 500,
+                  cursor: 'pointer', textAlign: 'left',
+                  background: !selectedCategory ? 'rgba(79,70,229,0.08)' : 'transparent',
+                  color: !selectedCategory ? 'var(--accent)' : 'var(--text-2)',
+                  border: 'none', transition: 'background 0.12s',
+                }}
+                onMouseEnter={e => { if (selectedCategory) e.currentTarget.style.background = 'var(--surface-2)'; }}
+                onMouseLeave={e => { if (selectedCategory) e.currentTarget.style.background = 'transparent'; }}
+              >
+                All Products
+              </button>
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => pickCategory(cat)}
+                  style={{
+                    padding: '9px 14px', borderRadius: 'var(--r-md)',
+                    fontSize: 13, fontWeight: selectedCategory === cat ? 700 : 500,
+                    cursor: 'pointer', textAlign: 'left',
+                    background: selectedCategory === cat ? 'rgba(79,70,229,0.08)' : 'transparent',
+                    color: selectedCategory === cat ? 'var(--accent)' : 'var(--text-2)',
+                    border: 'none', transition: 'background 0.12s',
+                    textTransform: 'capitalize',
+                  }}
+                  onMouseEnter={e => { if (selectedCategory !== cat) e.currentTarget.style.background = 'var(--surface-2)'; }}
+                  onMouseLeave={e => { if (selectedCategory !== cat) e.currentTarget.style.background = 'transparent'; }}
+                >
+                  {slugToLabel(cat)}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/*  Search bar  */}
@@ -128,7 +221,7 @@ const ProductsPage = () => {
             </svg>
             <input
               className="ent-input"
-              type="search"
+              type="text"
               placeholder="Search products…"
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setSelectedCategory(''); }}

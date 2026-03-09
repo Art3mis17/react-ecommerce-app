@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import useProduct from '../../hooks/useProduct';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import { useCart } from '../../contexts/CartContext';
@@ -43,10 +43,22 @@ const ProductDetailPage = () => {
   const { addToCart, cartItems, increment, decrement } = useCart();
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isDeleting, setIsDeleting]       = useState(false);
   const [deleteError, setDeleteError]     = useState('');
+  const [showSaved, setShowSaved]         = useState(false);
+
+  // Show "saved" toast if redirected from edit form
+  useEffect(() => {
+    if (searchParams.get('saved') === '1') {
+      setShowSaved(true);
+      setSearchParams({}, { replace: true }); // clean URL
+      const t = setTimeout(() => setShowSaved(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [searchParams, setSearchParams]);
 
   // Update tab title whenever the product loads
   useEffect(() => {
@@ -83,6 +95,23 @@ const ProductDetailPage = () => {
 
   return (
     <div className="ent-page">
+      {/* Success toast after editing */}
+      {showSaved && (
+        <div style={{
+          position: 'fixed', top: 80, left: '50%', transform: 'translateX(-50%)',
+          zIndex: 9999, background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+          color: '#fff', borderRadius: 12, padding: '13px 22px',
+          animation: 'notif-drop 0.42s cubic-bezier(0.34,1.56,0.64,1) both',
+          display: 'flex', alignItems: 'center', gap: 10,
+          boxShadow: '0 8px 32px rgba(21,128,61,0.40)',
+          fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap',
+        }}>
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+          </svg>
+          Product updated successfully!
+        </div>
+      )}
       <div className="ent-container">
 
         {/* Back */}

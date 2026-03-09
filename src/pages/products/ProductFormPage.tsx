@@ -133,7 +133,7 @@ const ProductFormPage = () => {
       if (isEdit) {
         await updateProduct(Number(id), payload);
         setSaved(true);
-        setTimeout(() => navigate(`/products/${id}`), 1500);
+        setTimeout(() => navigate(`/products/${id}?saved=1`), 1500);
       } else {
         await createProduct(payload);
         setSaved(true);
